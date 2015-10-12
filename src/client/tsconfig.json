@@ -6,8 +6,6 @@
         "preserveConstEnums": true,
         "noImplicitAny": true,
         "suppressImplicitAnyIndexErrors": true,
-        "outDir": "../../dist/client",
-        "module": "commonjs",
         "sourceMap": true,
         "target": "ES5"
     },
