@@ -1,8 +1,12 @@
 import {
-  Record, Story, Image, Video
+  Record, Story, Image, Video, makeRecordId
 } from '../../../shared/record/record';
 import { Associate  } from './associate/associate-component';
 import { Archive } from '../archive-component';
+
+import {
+  RecordResource
+} from './record-resource';
 
 import { FileReaderService } from '../../util/fileinput/fileinput-service';
 import { FileInput } from '../../util/fileinput/fileinput-directive';
@@ -99,6 +103,7 @@ export class RecordViewer {
   }
 
   static $depends: string[] = [
+    'ngMessages',
     FileReaderService.module.name,
     FileInput.module.name,
     Associate.module.name,
@@ -106,5 +111,36 @@ export class RecordViewer {
   static module: angular.IModule = angular.module(
     'mtna.recordViewer', RecordViewer.$depends
   ).directive('recordViewer', ['$timeout', RecordViewer.directive]);
+}
+
+class LabelValidator {
+  static directive(RecordResource: RecordResource): angular.IDirective {
+    return {
+      require: 'ngModel',
+      restrict: 'a',
+      link: {
+        post: function($s: any, $e: any, attrs: any, ctrl: angular.INgModelController) {
+          ctrl.$asyncValidators.recordLabel =
+            function(
+                modelValue: string,
+                viewValue: string
+            ): angular.IPromise<void> {
+              return RecordResource.get({id: makeRecordId(modelValue)})
+                .$promise.then(
+                  (r: Record) => {
+                    throw new Error('Record label already taken.');
+                  },
+                  (err: any) => {
+                    // Record available, probably. Should assert 404 return?
+                    return;
+                  }
+                );
+            };
+        }
+      }
+    };
+  }
+  static module: angular.IModule = angular.module('mtna.recordViewer')
+    .directive('labelValidator', ['RecordResource', LabelValidator.directive]);
 }
 

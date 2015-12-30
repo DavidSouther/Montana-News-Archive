@@ -30,7 +30,15 @@ div(layout="column")
       div(layout="row" layout-xs="column" layout-align="space-between end" ng-if="state.editing")
         md-input-container(flex="15")
           label Label
-          input(type="text" ng-model="state.record.label" placeholder="Tape Label")
+          input(
+            type="text" ng-model="state.record.label"
+            name="label" label-validator
+            placeholder="Tape Label"
+          )
+          ng-messages(for="recordEditor.label.$error")
+            ng-message(when="recordLabel")
+              b {{ state.record.label }}
+              | is already used!
         md-input-container(flex="15")
           label Family
           input(type="text" ng-model="state.record.family" placeholder="Tape Family")
